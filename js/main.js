@@ -21,7 +21,7 @@ window.onload = function() {
     function preload() {
 
         game.load.spritesheet("player", "assets/sprites/dog.png", 46, 27, 4);
-        game.load.image("brick", "assets/backgrounds/brick.jpg");
+        game.load.image("brick", "assets/backgrounds/brick.JPG");
         game.load.image("road", "assets/backgrounds/road.jpg");
         game.load.image("box", "assets/box.png");
         game.load.audio("woof", "assets/woof.mp3");
