@@ -96,6 +96,10 @@ window.onload = function() {
         // reset player velocity
         player.body.velocity.x = 0;
 
+        if(bark.isDown) {
+            woof.play();
+        }
+
         if(cursors.right.isDown) {
             player.scale.x = -2;
             player.body.velocity.x = 150;
@@ -113,11 +117,6 @@ window.onload = function() {
         if(cursors.up.isDown && player.body.touching.down) {
             player.body.velocity.y = -300;
         }
-
-        if(bark.isDown) {
-            woof.play();
-        }
-
     }
 
 };
