@@ -1,0 +1,5 @@
+sheet: 		138x54
+sprite size:	46x27
+
+4 frames for walk
+6 for walk and urinate

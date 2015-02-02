@@ -12,41 +12,112 @@ window.onload = function() {
     // All loading functions will typically all be found inside "preload()".
     
     "use strict";
-    
-    var game = new Phaser.Game( 800, 600, Phaser.AUTO, 'game', { preload: preload, create: create, update: update } );
+
+    var game = new Phaser.Game( 800, 600,
+        Phaser.AUTO, 'Remembrance of Dog',
+        { preload: preload, create: create, update: update }
+    );
     
     function preload() {
-        // Load an image and call it 'logo'.
-        game.load.image( 'logo', 'assets/phaser.png' );
+
+        game.load.spritesheet("player", "assets/sprites/dog.png", 46, 27, 4);
+        game.load.image("brick", "assets/backgrounds/brick.jpg");
+        game.load.image("road", "assets/backgrounds/road.jpg");
+        game.load.image("box", "assets/box.png");
+        game.load.audio("woof", "assets/woof.mp3");
+        game.load.audio("theme", "assets/music/SummerTown.mp3");
+
+
     }
-    
-    var bouncy;
-    
+
+    var tiledBrick; // holds tiled brick background
+    var platforms;  // group to hold objects to stand on
+    var player;     // the player of the game
+    var cursors;    // adds keyboard support
+    var bark;       // add spacebar to jump with
+    var woof;       // woof sound during bark attack
+    var music;      // theme song
+
     function create() {
-        // Create a sprite at the center of the screen using the 'logo' image.
-        bouncy = game.add.sprite( game.world.centerX, game.world.centerY, 'logo' );
-        // Anchor the sprite at its center, as opposed to its top-left corner.
-        // so it will be truly centered.
-        bouncy.anchor.setTo( 0.5, 0.5 );
-        
-        // Turn on the arcade physics engine for this sprite.
-        game.physics.enable( bouncy, Phaser.Physics.ARCADE );
-        // Make it bounce off of the world bounds.
-        bouncy.body.collideWorldBounds = true;
-        
-        // Add some text using a CSS style.
-        // Center it in X, and position its top 15 pixels from the top of the world.
-        var style = { font: "25px Verdana", fill: "#9999ff", align: "center" };
-        var text = game.add.text( game.world.centerX, 15, "Build something awesome.", style );
-        text.anchor.setTo( 0.5, 0.0 );
+
+        // add music on loop
+        music = game.add.audio("theme", 2, true);
+        music.play("", 0, 1, true);
+
+        woof = game.add.audio("woof", 4, false);
+
+        // start physics
+        game.physics.startSystem(Phaser.Physics.ARCADE);
+
+        // add background
+        tiledBrick = game.add.tileSprite(0, 0, 800, 600, "brick");
+
+        // add platforms group and enable physics for all members
+        platforms = game.add.group();
+        platforms.enableBody = true;
+
+        // add ground
+        var ground = platforms.create(0, game.world.height - 70, "road");
+        ground.body.immovable = true;
+
+        // add some platforming elements
+        var box1 = platforms.create(700, game.world.height - 170, "box");
+        box1.body.immovable = true;
+
+        var box2 = platforms.create(600, game.world.height - 170, "box");
+        box2.body.immovable = true;
+
+        var box3 = platforms.create(500, game.world.height - 170, "box");
+        box3.body.immovable = true;
+
+
+        // add player
+        player = game.add.sprite(82, game.world.height - 70, "player");
+        game.physics.arcade.enable(player);
+        player.body.collideWorldBounds = true;
+        player.anchor.setTo(.5, 1); // flip around the middle
+        player.scale.x = -2;
+        player.scale.y = 2;
+        player.body.gravity.y = 300;
+        player.animations.add("walk", [0,1,2,3,4], 7, true);
+
+        // add cursors
+        cursors = game.input.keyboard.createCursorKeys();
+
+        // add spacebar
+        bark = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+
     }
     
     function update() {
-        // Accelerate the 'logo' sprite towards the cursor,
-        // accelerating at 500 pixels/second and moving no faster than 500 pixels/second
-        // in X or Y.
-        // This function returns the rotation angle that makes it visually match its
-        // new trajectory.
-        bouncy.rotation = game.physics.arcade.accelerateToPointer( bouncy, this.game.input.activePointer, 500, 500, 500 );
+        // check if player is on the ground
+        game.physics.arcade.collide(player, platforms);
+
+        // reset player velocity
+        player.body.velocity.x = 0;
+
+        if(cursors.right.isDown) {
+            player.scale.x = -2;
+            player.body.velocity.x = 150;
+            player.animations.play("walk");
+
+        } else if(cursors.left.isDown) {
+            player.scale.x = 2;
+            player.body.velocity.x = -150;
+            player.animations.play("walk");
+        } else {
+            player.animations.stop();
+            player.frame = 4;
+        }
+
+        if(cursors.up.isDown && player.body.touching.down) {
+            player.body.velocity.y = -300;
+        }
+
+        if(bark.isDown) {
+            woof.play();
+        }
+
     }
+
 };
