@@ -57,7 +57,7 @@ window.onload = function() {
         game.physics.startSystem(Phaser.Physics.ARCADE);
 
         // add background
-        tiledBrick = game.add.sprite(800, 600, "brick");
+        tiledBrick = game.add.sprite(0, 0, "brick");
 
         // add platforms group and enable physics for all members
         platforms = game.add.group();
