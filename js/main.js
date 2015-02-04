@@ -22,7 +22,7 @@ window.onload = function() {
 
         game.load.spritesheet("player", "assets/sprites/dog.png", 46, 27, 4);
         game.load.image("laser", "assets/sprites/laser.png");
-        game.load.image("brick", "assets/backgrounds/brick.jpg");
+        game.load.image("brick", "assets/backgrounds/brick.png");
         game.load.image("road", "assets/backgrounds/road.jpg");
         game.load.image("box", "assets/box.png");
         game.load.audio("woof", "assets/woof.mp3");
@@ -57,7 +57,7 @@ window.onload = function() {
         game.physics.startSystem(Phaser.Physics.ARCADE);
 
         // add background
-        tiledBrick = game.add.tileSprite(0, 0, 800, 600, "brick");
+        tiledBrick = game.add.sprite(0, 0, 800, 600, "brick");
 
         // add platforms group and enable physics for all members
         platforms = game.add.group();
