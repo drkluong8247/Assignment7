@@ -9,6 +9,7 @@ window.onload = function () {
     function preload() {
         // load sprites
         game.load.spritesheet("player", "assets/sprites/dog.png", 46, 27, 4);
+        game.load.spritesheet("enemy", "assets/sprites/fitted enemy.png", 96, 96, 9);
         game.load.spritesheet("catcher", "assets/sprites/dc.png", 32, 32);
 
         // load images
@@ -35,7 +36,6 @@ window.onload = function () {
     var laser;          // holds a single laser at a time
     var laserTime = 0;  // time at which last laser was fired
 
-    var catchers;       // group to hold dog catchers
     var catcher;        // individual catcher
     var lives = 4;      // how many times you can be hit
 
@@ -44,6 +44,9 @@ window.onload = function () {
     var t;
 
     var numKilled = 0;
+
+    var speed = 100;
+
 
 
     function create() {
@@ -105,24 +108,12 @@ window.onload = function () {
         lasers.setAll("checkWorldBounds", true);
 
 //------------------------ Add Dog Catcher -------------------------------
-        /*
-        catcher = game.add.sprite(Math.floor(Math.random() * 801), 0, "catcher");
-        game.physics.arcade.enable(catcher);
-        catcher.body.collideWorldBounds = true;
-        catcher.body.velocity.x = 150;
-        catcher.body.velocity.y = 100;
-
-        //catcher.body.gravity.y = 300;
-        catcher.animations.add("attack", [0, 1], 10, true);
-        catcher.animations.play("attack");
-        */
-
         drawNewCatcher();
     }
 
     function update() {
 
-        game.physics.arcade.moveToObject(catcher, player);
+        game.physics.arcade.moveToObject(catcher, player, 150);
 
  // ------------------------ Collisions ----------------------------------
 
@@ -132,7 +123,7 @@ window.onload = function () {
 
         game.physics.arcade.overlap(player, catcher, playerCollisionHandler, null, this);
 
-        //game.physics.overlap(player.sprite, catcher.sprite, laserCollisionHandler, null, this);
+        game.physics.arcade.overlap(laser, catcher, laserCollisionHandler, null, this);
 
 
 
@@ -150,20 +141,23 @@ window.onload = function () {
             player.scale.y = -2;
 
             game.world.remove(t);
-            game.pause = true;
-            var restartText = "You Died! Click to restart...";
+
+            game.paused = true;
+            var restartText = "You Died! Reload the Page to Restart...";
             var style = {font: "42px Arial", fill: "#ff0000", align: "center"};
-            t = game.add.text(180, 258, restartText, style);
+            t = game.add.text(20, 258, restartText, style);
 
         } else {
             catcher.kill();
             lives -= 1;
-            points += 10;
             game.world.remove(t);
             updateText();
 
             numKilled++;
-            drawCatcher(numKilled);
+            speed += 10;
+
+
+            redrawCatcher();
         }
 
         return;
@@ -171,6 +165,25 @@ window.onload = function () {
 
     function laserCollisionHandler() {
 
+        if(points >= 100) {
+            game.world.remove(t);
+            game.paused = true;
+            var restartText = "Congratulations! You've Won!\nReload the Page to Restart...";
+            var style = {font: "42px Arial", fill: "#ff0000", align: "left"};
+            t = game.add.text(40, 258, restartText, style);
+        } else {
+
+            points += 10;
+
+            catcher.kill();
+            laser.kill();
+            game.world.remove(t);
+            updateText();
+
+            numKilled++;
+            speed += 10;
+            redrawCatcher();
+        }
     }
 
     function updateText() {
@@ -184,20 +197,19 @@ window.onload = function () {
         if (cursors.right.isDown) { // move right
 
             player.scale.x = -2;
-            player.body.velocity.x = 150;
+            player.body.velocity.x = 180;
             player.animations.play("run");
 
         } else if (cursors.left.isDown) {   // move left
 
             player.scale.x = 2;
-            player.body.velocity.x = -150;
+            player.body.velocity.x = -180;
             player.animations.play("run");
 
         } else {    // stop walking animations
 
             player.animations.stop();
             player.frame = 4;
-
         }
 
         // jump
@@ -205,8 +217,19 @@ window.onload = function () {
             player.body.velocity.y = -300;
         }
 
-        // fire laser
-        if(spacebar.isDown) {
+
+        // reset the game if paused
+        if(spacebar.isDown && game.paused === true) {
+
+            game.paused = false;
+            game.world.remove(t);
+            player.reset();
+            points = 0;
+            catcher.destroy();
+            drawNewCatcher();
+
+            // fire laser
+        } else if(spacebar.isDown) {
             woof.play();
             fireLaser();
             laser.scale.x = 1;
@@ -247,25 +270,6 @@ window.onload = function () {
 
     function drawNewCatcher() {
 
-        /*
-        // get first catcher in existance
-        catcher = catchers.getFirstDead();
-        catcher.revive();
-        //game.physics.enable(catcher, Phaser.Physics.ARCADE);
-
-        // add animation
-        catcher.animations.add("float", [1,2], 10, true);
-        catcher.animations.play("float");
-
-        // generate intial start position.
-        var randX = Math.floor(Math.random() * (801));
-        var randX = Math.floor(Math.random() * (601));
-
-        catcher.reset(400, 300);
-        game.physics.moveToObject(catcher, player, 100);
-        */
-
-
         catcher = game.add.sprite(Math.floor(Math.random() * 801), 0, "catcher");
         game.physics.arcade.enable(catcher);
         catcher.body.collideWorldBounds = true;
@@ -276,12 +280,20 @@ window.onload = function () {
         catcher.animations.add("attack", [0, 1], 10, true);
         catcher.animations.play("attack");
 
-
     }
 
-    function drawCatcher(killed) {
-        for(var i = 0; i < killed + 1; i++) {
-            drawNewCatcher();
+    function redrawCatcher(killed) {
+        var oldScaleX = catcher.scale.x;
+        var oldScaleY = catcher.scale.y;
+
+        drawNewCatcher();
+
+        if(numKilled <= 5) {
+            catcher.scale.x = oldScaleX * 1.25;
+            catcher.scale.y = oldScaleY * 1.25;
+        } else {
+            catcher.scale.x = oldScaleX * 1.1;
+            catcher.scale.y = oldScaleY * 1.1;
         }
     }
 
