@@ -10,11 +10,12 @@ window.onload = function () {
         // load sprites
         game.load.spritesheet("player", "assets/sprites/dog.png", 46, 27, 4);
         game.load.spritesheet("enemy", "assets/sprites/fitted enemy.png", 96, 96, 9);
+        game.load.spritesheet("catcher", "assets/sprites/dc.png", 32, 32);
 
         // load images
         game.load.image("laser", "assets/sprites/laser.png");
-        game.load.image("brick", "assets/backgrounds/brick.png");
-        game.load.image("road", "assets/backgrounds/road.png");
+        game.load.image("brick", "assets/backgrounds/brick.jpg");
+        game.load.image("road", "assets/backgrounds/road.jpg");
         game.load.image("box", "assets/box.png");
 
         // loads audio
@@ -34,6 +35,17 @@ window.onload = function () {
     var lasers;         // group of lasers
     var laser;          // holds a single laser at a time
     var laserTime = 0;  // time at which last laser was fired
+
+    var catchers;       // group to hold dog catchers
+    var catcher;        // individual catcher
+    var lives = 4;      // how many times you can be hit
+
+    var text;
+    var points = 0;
+    var t;
+
+    var numKilled = 0;
+
 
     function create() {
 
@@ -62,6 +74,9 @@ window.onload = function () {
         boxes.enableBody = true;
         drawBoxes();
 
+        // add text
+        updateText();
+
 //------------------- Set up player --------------------------------------
         // add player
         player = game.add.sprite(82, game.world.height - 70, "player");
@@ -89,14 +104,38 @@ window.onload = function () {
         lasers.createMultiple(30, 'laser');             // create 30 lasers ready to go
         lasers.setAll("outOfBoundsKill", true);
         lasers.setAll("checkWorldBounds", true);
+
+//------------------------ Add Dog Catcher -------------------------------
+        /*
+        catcher = game.add.sprite(Math.floor(Math.random() * 801), 0, "catcher");
+        game.physics.arcade.enable(catcher);
+        catcher.body.collideWorldBounds = true;
+        catcher.body.velocity.x = 150;
+        catcher.body.velocity.y = 100;
+
+        //catcher.body.gravity.y = 300;
+        catcher.animations.add("attack", [0, 1], 10, true);
+        catcher.animations.play("attack");
+        */
+
+        drawNewCatcher();
     }
 
     function update() {
-// ------------------------ Collisions ----------------------------------
+
+        game.physics.arcade.moveToObject(catcher, player);
+
+ // ------------------------ Collisions ----------------------------------
 
         game.physics.arcade.collide(player, ground);    // check if player is on the ground
 
         game.physics.arcade.collide(player, boxes);     // check if player is colliding with boxes
+
+        game.physics.arcade.overlap(player, catcher, playerCollisionHandler, null, this);
+
+        //game.physics.overlap(player.sprite, catcher.sprite, laserCollisionHandler, null, this);
+
+
 
 // ---------------------- Movement ---------------------------------------
         // reset player velocity
@@ -104,6 +143,42 @@ window.onload = function () {
 
         // check for input from controls
         checkControls();
+    }
+
+    function playerCollisionHandler() {
+        if(lives <= 0) {
+            catcher.kill();
+            player.scale.y = -2;
+
+            game.world.remove(t);
+            game.pause = true;
+            var restartText = "You Died! Click to restart...";
+            var style = {font: "42px Arial", fill: "#ff0000", align: "center"};
+            t = game.add.text(180, 258, restartText, style);
+
+        } else {
+            catcher.kill();
+            lives -= 1;
+            points += 10;
+            game.world.remove(t);
+            updateText();
+
+            numKilled++;
+            drawCatcher(numKilled);
+        }
+
+        return;
+    }
+
+    function laserCollisionHandler() {
+
+    }
+
+    function updateText() {
+        // write text
+        text = "Points: " + points + "\nLives: " + lives;
+        var style = {font: "32px Arial", fill: "#ffffff", align: "left"};
+        t = game.add.text(0, 0, text, style);
     }
 
     function checkControls() {
@@ -168,6 +243,46 @@ window.onload = function () {
                     laserTime = game.time.now + 200;
                 }
             }
+        }
+    }
+
+    function drawNewCatcher() {
+
+        /*
+        // get first catcher in existance
+        catcher = catchers.getFirstDead();
+        catcher.revive();
+        //game.physics.enable(catcher, Phaser.Physics.ARCADE);
+
+        // add animation
+        catcher.animations.add("float", [1,2], 10, true);
+        catcher.animations.play("float");
+
+        // generate intial start position.
+        var randX = Math.floor(Math.random() * (801));
+        var randX = Math.floor(Math.random() * (601));
+
+        catcher.reset(400, 300);
+        game.physics.moveToObject(catcher, player, 100);
+        */
+
+
+        catcher = game.add.sprite(Math.floor(Math.random() * 801), 0, "catcher");
+        game.physics.arcade.enable(catcher);
+        catcher.body.collideWorldBounds = true;
+        catcher.body.velocity.x = 150;
+        catcher.body.velocity.y = 100;
+
+        //catcher.body.gravity.y = 300;
+        catcher.animations.add("attack", [0, 1], 10, true);
+        catcher.animations.play("attack");
+
+
+    }
+
+    function drawCatcher(killed) {
+        for(var i = 0; i < killed + 1; i++) {
+            drawNewCatcher();
         }
     }
 
