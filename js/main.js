@@ -142,10 +142,10 @@ window.onload = function () {
 
             game.world.remove(t);
 
-            game.paused = true;
             var restartText = "You Died! Reload the Page to Restart...";
             var style = {font: "42px Arial", fill: "#ff0000", align: "center"};
             t = game.add.text(20, 258, restartText, style);
+            game.paused = true;
 
         } else {
             catcher.kill();
@@ -167,10 +167,10 @@ window.onload = function () {
 
         if(points >= 100) {
             game.world.remove(t);
-            game.paused = true;
             var restartText = "Congratulations! You've Won!\nReload the Page to Restart...";
             var style = {font: "42px Arial", fill: "#ff0000", align: "left"};
             t = game.add.text(40, 258, restartText, style);
+            game.paused = true;
         } else {
 
             points += 10;
@@ -218,18 +218,8 @@ window.onload = function () {
         }
 
 
-        // reset the game if paused
-        if(spacebar.isDown && game.paused === true) {
-
-            game.paused = false;
-            game.world.remove(t);
-            player.reset();
-            points = 0;
-            catcher.destroy();
-            drawNewCatcher();
-
             // fire laser
-        } else if(spacebar.isDown) {
+        if(spacebar.isDown) {
             woof.play();
             fireLaser();
             laser.scale.x = 1;
