@@ -9,13 +9,12 @@ window.onload = function () {
     function preload() {
         // load sprites
         game.load.spritesheet("player", "assets/sprites/dog.png", 46, 27, 4);
-        game.load.spritesheet("enemy", "assets/sprites/fitted enemy.png", 96, 96, 9);
         game.load.spritesheet("catcher", "assets/sprites/dc.png", 32, 32);
 
         // load images
         game.load.image("laser", "assets/sprites/laser.png");
-        game.load.image("brick", "assets/backgrounds/brick.jpg");
-        game.load.image("road", "assets/backgrounds/road.jpg");
+        game.load.image("brick", "assets/backgrounds/brick.png");
+        game.load.image("road", "assets/backgrounds/road.png");
         game.load.image("box", "assets/box.png");
 
         // loads audio
