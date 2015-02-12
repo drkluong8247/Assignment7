@@ -14,6 +14,8 @@ window.onload = function () {
         // spaceship
         game.load.spritesheet("ship", "assets/new/ships.png", 256, 277);
         game.load.image("enemyShip", "assets/new/ship/png/ship (4).png");
+        game.load.sprite("bg", "assets/new/m6.jpg");
+        
 
         // bullets
         game.load.image("pBullet", "assets/new/big_bullet_single.png");
@@ -63,6 +65,9 @@ window.onload = function () {
     function create() {
         // start physics
         game.physics.startSystem(Phaser.Physics.ARCADE);
+        
+        //set background
+        game.add.tileSprite(0,0, "bg");
 
         var audio = game.add.audio("main");
         audio.play();
