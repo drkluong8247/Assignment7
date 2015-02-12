@@ -14,7 +14,7 @@ window.onload = function () {
         // spaceship
         game.load.spritesheet("ship", "assets/new/ships.png", 256, 277);
         game.load.image("enemyShip", "assets/new/ship/png/eShip.png");
-        game.load.image("bg", "assets/new/m6.jpg");
+        game.load.image("bg", "assets/new/m6.png");
         
 
         // bullets
