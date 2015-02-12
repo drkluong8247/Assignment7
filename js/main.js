@@ -67,7 +67,7 @@ window.onload = function () {
         game.physics.startSystem(Phaser.Physics.ARCADE);
         
         //set background
-        game.add.tileSprite(0,0, "bg");
+        game.add.sprite(0,0, "bg");
 
         var audio = game.add.audio("main");
         audio.play();
