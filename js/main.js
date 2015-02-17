@@ -33,16 +33,6 @@ window.onload = function () {
 
 
     /*
-     * You are an officer who swore to avenge the killing of a little girl,
-     * but you have failed to keep up your promise, forgetting about her
-     * entirely. WRONG MOVE. She has become angry, waiting for you to avenge
-     * solve her murder, but she has decided to accept another form of promise-
-     * fulfilment: your death. It is your job to hastily find all of the evidence
-     * from her murder scene to solve her murder before she takes your life in
-     * the process.
-     */
-
-    /*
      * Requirements:
      *      1. Collect evidence
      *          a. if found, win
@@ -52,6 +42,16 @@ window.onload = function () {
      *          a. use service pistol to dispel the apparitions
      *
      *      3. drop the mic
+     */
+
+    /*
+     * TODO: find/create an officer sprite to play with.
+     *      If he collides with a ladder, don't stop him, but allow him to move up.
+     *      Allow him to shoot his pistol.
+     *
+     * TODO: Create enemies
+     *
+     * TODO: Add evidence collection feature
      */
 
     function create () {
