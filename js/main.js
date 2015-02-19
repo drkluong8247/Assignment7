@@ -16,6 +16,7 @@ window.onload = function () {
 
         game.load.image('player', 'assets/player/test.png');
         game.load.image('bullet', 'assets/player/bullet.png');
+        game.load.image('orb', 'assets/evidence/orb.png');
 
         game.load.image('ghost', 'assets/ghost/ghost.png');
 
@@ -27,6 +28,8 @@ window.onload = function () {
         game.load.audio('grunt', 'assets/music/grunt.wav');
         game.load.audio('death', 'assets/music/death.wav');
         game.load.audio('ghostSound', 'assets/music/ghost.wav');
+        game.load.audio('win', 'assets/music/win.wav');
+        game.load.audio('item', 'assets/music/item.wav');
     }
 
     // map variables
@@ -47,13 +50,12 @@ window.onload = function () {
 
     // create enemies
     var ghosts;     // group of ghosts
-    //var ghost;      // individual ghost
     var gTime;
     var gDelay;
 
     // game statistics
-    var currentLives = 1;
-    var scoreMax = 500;
+    var lives = 5;
+    var scoreMax = 1000;
     var currentScore = 0;
     var controlsText = 'Move: WASD    Jump: Spacebar    Fire: Click';
     var scoreText = "Score: ";
@@ -61,36 +63,18 @@ window.onload = function () {
 
     var finalText;
 
+    // evidence variables
+    var evidence;
+    var evidenceFound = false;
+
     // audio
     var music;
     var shoot;
     var grunt;
     var death;
     var ghostSound;
-
-    /*
-     * Requirements:
-     *      1. Collect evidence
-     *          a. if found, win
-     *          b. if die, lose
-     *
-     *      2. fight off ghosts
-     *          a. use service pistol to dispel the apparitions
-     *
-     *      3. drop the mic
-     */
-
-    /*
-     * TODO: find/create an officer sprite to play with.
-     *      If he collides with a ladder, don't stop him, but allow him to move up.
-     *      Allow him to shoot his pistol.
-     *
-     * TODO: Add evidence collection feature
-     *
-     * TODO: Add text for lives and score
-     *
-     * TODO: Add sounds
-     */
+    var win;
+    var item;
 
     function create () {
 
@@ -118,10 +102,13 @@ window.onload = function () {
         map.setCollision([257, 258, 259], true, 'Ceiling'); // set collision on ceiling
 
         // add text to game
-        var text = controlsText + "\n" + scoreText + currentScore + "\n" + livesText + currentLives;
+        var text = controlsText + "\n" + scoreText + currentScore + "\n" + livesText + lives;
         var style = {font: "20px Arial", fill: '#ffffff', align: 'left'};
         finalText = game.add.text(0, 0, text, style);
         finalText.fixedToCamera = true;
+
+        // add evidence
+        addEvidence();
 
         // add player (officer Williams)
         addPlayer();
@@ -142,7 +129,8 @@ window.onload = function () {
         grunt = game.add.audio('grunt', 6, false);
         death = game.add.audio('death', 6, false);
         ghostSound = game.add.audio('ghostSound', 2, false);
-
+        win = game.add.audio('win', 8, false);
+        item = game.add.audio('item', 6, false);
     }
 
     function update () {
@@ -152,10 +140,14 @@ window.onload = function () {
         game.physics.arcade.collide(ceiling, player);
         game.physics.arcade.collide(player, ladders);   // necessary for calling ladderHandler()
         game.physics.arcade.collide(bullets, ground, shootBoundaryHandler);
+        game.physics.arcade.collide(evidence, ground);
 
         // enemy collisions
         game.physics.arcade.collide(bullets, ghosts, shootGhostHandler);
         game.physics.arcade.collide(player, ghosts, hitPlayerHandler);
+
+        // evidence collision
+        game.physics.arcade.collide(player, evidence, evidenceHandler);
 
         // check controls
         checkPlayerMovement();
@@ -176,6 +168,23 @@ window.onload = function () {
         }
     }
 
+    function evidenceHandler() {
+        spawnEvidence();
+        currentScore += 100;
+
+        if(currentScore === scoreMax) {
+            player.kill();
+            showWinText();
+            music.stop();
+            win.play();
+            return;
+        }
+
+        updateText();
+
+        item.play();
+    }
+
     function shootGhostHandler(bullet, ghost) {
         bullet.kill();
         ghost.kill();
@@ -188,14 +197,14 @@ window.onload = function () {
 
     function hitPlayerHandler(sprite, ghost) {
         ghost.kill();
-        if(currentLives === 0) {
+        if(lives === 0) {
             death.play();
             player.kill();
             showDeathText();
             return;
         }
         grunt.play();
-        currentLives--;
+        lives--;
         updateText();
     }
 
@@ -222,9 +231,42 @@ window.onload = function () {
         ghosts.setAll('checkWorldBounds', true);
     }
 
+    function spawnEvidence() {
+        var x = game.rnd.integerInRange(32, 2368);
+        var y = game.rnd.integerInRange(0, 545);
+
+        var temp = player.x;
+
+        while(Math.abs(temp - x) < 400) {
+            x = game.rnd.integerInRange(32, 2368);
+        }
+
+        temp = player.x;
+
+        while(y >= 288 && y <= 448) {
+            y = game.rnd.integerInRange(0, 545);
+        }
+
+        evidence.reset(x, y);
+    }
+
+    function addEvidence() {
+        var x = game.rnd.integerInRange(32, 2368);
+        var y = game.rnd.integerInRange(0, 545);
+
+        while(y >= 288 && y <= 448) {
+            y = game.rnd.integerInRange(0, 545);
+        }
+
+        evidence = game.add.sprite(x, y, 'orb');
+        game.physics.arcade.enable(evidence);
+        evidence.body.gravity.y = 300;
+        evidence.anchor.setTo(.5,.5);
+    }
+
     function spawnGhost() {
 
-        if(gTime < game.time.now && ghosts.countLiving() <= 9) {
+        if(gTime < game.time.now && ghosts.countLiving() <= 14) {
             gTime = game.time.now + gDelay;
 
             var ghost = ghosts.getFirstExists(false);
@@ -297,7 +339,7 @@ window.onload = function () {
     }
 
     function fireBullets() {
-        if(game.input.activePointer.isDown) {
+        if(game.input.activePointer.isDown && player.alive === true) {
             if (game.time.now > nextFire && bullets.countDead() > 0) {
                 nextFire = game.time.now + fireRate;
                 var bullet = bullets.getFirstDead();
@@ -310,7 +352,7 @@ window.onload = function () {
 
     function updateText() {
         game.world.remove(finalText);
-        var text = controlsText + "\n" + scoreText + currentScore + "\n" + livesText + currentLives;
+        var text = controlsText + "\n" + scoreText + currentScore + "\n" + livesText + lives;
         var style = {font: "20px Arial", fill: '#ffffff', align: 'left'};
         finalText = game.add.text(0, 0, text, style);
         finalText.fixedToCamera = true;
@@ -319,6 +361,14 @@ window.onload = function () {
     function showDeathText() {
         game.world.remove(finalText);
         var restartText = "You have Died!\nReload the Page to Restart...";
+        var style = {font: "42px Arial", fill: "#ff0000", align: "center"};
+        finalText = game.add.text(135, 250, restartText, style);
+        finalText.fixedToCamera = true;
+    }
+
+    function showWinText() {
+        game.world.remove(finalText);
+        var restartText = "Congratulations!\nYou have Won!\nReload the Page to Restart...";
         var style = {font: "42px Arial", fill: "#ff0000", align: "center"};
         finalText = game.add.text(135, 250, restartText, style);
         finalText.fixedToCamera = true;
