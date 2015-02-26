@@ -78,7 +78,7 @@ window.onload = function () {
         bg.resizeWorld();
 
         // add player
-        player = game.add.sprite(2848, 575, 'player');
+        player = game.add.sprite(20, 575, 'player');
         player.animations.add('lights_on');
         player.anchor.setTo(0, 1);
         game.physics.arcade.enable(player);
