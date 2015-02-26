@@ -24,10 +24,15 @@ window.onload = function () {
         // music
         game.load.audio('transport', 'assets/sounds/transport.wav');
 
+        // man
+        game.load.spritesheet('man', 'assets/people/man.png', 9, 8);
+
     }
 
     // game vars
     var first_play = true;
+    var arrived = false;
+    var worker;
 
     // map vars
     var map;
@@ -36,6 +41,8 @@ window.onload = function () {
     // player vars
     var player;
     var keys;
+    var man;
+    var manNotCreated = true;
 
     // sounds
     var siren;
@@ -77,6 +84,9 @@ window.onload = function () {
         // add music
         transport = game.add.audio('transport', 3, true);
 
+        // add man
+       // man = game.add.sprite(2848, 560, 'man');
+
     }
 
 
@@ -85,9 +95,13 @@ window.onload = function () {
 
         if(first_play) {
             startGame();
+        } else if(arrived){
+            arrivalAnimation();
         } else {
             checkForInput();
         }
+
+        //console.log(player.x);
     }
 
     function addControls() {
@@ -124,6 +138,10 @@ window.onload = function () {
             player.animations.play('lights_on', 5, true);
             lastPlayed = game.time.now;
         }
+
+        if(player.x >= 2858) {
+            arrived = true;
+        }
     }
 
     function startGame() {
@@ -134,6 +152,29 @@ window.onload = function () {
             player.animations.play('lights_on',5, true);
             first_play = false;
             lastPlayed = game.time.now;
+        }
+    }
+
+    function arrivalAnimation() {
+        if(manNotCreated) {
+            man = game.add.sprite(2848, player.y, 'man');
+            man.animations.add('walk');
+            man.animations.play('walk', 8, true);
+            manNotCreated = false;
+            game.camera.follow(man, Phaser.Camera.FOLLOW_PLATFORMER);
+        }
+
+        // Player Movement
+        if(keys.up.isDown && man.y >= 520) {
+            man.y -= 1;
+        } else if(keys.down.isDown) {
+            man.y += 1;
+        }
+
+        if(keys.left.isDown) {
+            man.x -= 1;
+        }  else if(keys.right.isDown) {
+            man.x += 1;
         }
     }
 
