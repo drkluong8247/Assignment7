@@ -26,13 +26,19 @@ window.onload = function () {
 
         // man
         game.load.spritesheet('man', 'assets/people/man.png', 9, 8);
+        game.load.audio('squish', 'assets/sounds/squish.wav');
 
     }
 
     // game vars
     var first_play = true;
     var arrived = false;
-    var worker;
+    var notHaveTheOrgan = true;
+    var OnTheWayBack = false;
+    var alive = true;
+    var victim;
+    var people;
+    var score = 0;
 
     // map vars
     var map;
@@ -48,12 +54,17 @@ window.onload = function () {
     var siren;
     var sDelay = 200;
     var lastPlayed = 0;
-
+    var squish;
     var transport;
 
     // text
-    var initial_instructions = 'Press Space to Begin Your Transport!\nW = UP     S = DOWN\nA = LEFT  D = RIGHT';
+    var initial_instructions = 'Press Space and Get to the Hospital!\nW = UP     S = DOWN\nA = LEFT  D = RIGHT';
     initial_instructions += '\nSPACE = SIREN';
+    var second_instructions = 'Grab the Organ at the Lighted Doorway!';
+    var organText = "You have the Organ! Get It to the Patient Before He Expires!";
+    var scoreText;
+    var scoreString = "Score: " + score;
+    var victimText;
 
     function create() {
         // add physics
@@ -67,12 +78,21 @@ window.onload = function () {
         bg.resizeWorld();
 
         // add player
-        player = game.add.sprite(0, 575, 'player');
+        player = game.add.sprite(2848, 575, 'player');
         player.animations.add('lights_on');
         player.anchor.setTo(0, 1);
         game.physics.arcade.enable(player);
         player.body.collideWorldBounds = true;
         game.camera.follow(player, Phaser.Camera.FOLLOW_PLATFORMER);
+
+        // add victim
+        victim = game.add.sprite(200, 520, 'man');
+        game.physics.arcade.enable(victim);
+        victim.scale.x = 2;
+        victim.scale.y = 2;
+
+        var style = {font : '12px Arial', fill : '#ffffff', align : 'left'};
+        victimText = game.add.text(150, 470, "Help! My heart is bad and I can't risk moving!\nCan you get me a new heart?", style);
 
         addControls();
         siren = game.add.audio('siren', 2, true);
@@ -84,24 +104,53 @@ window.onload = function () {
         // add music
         transport = game.add.audio('transport', 3, true);
 
-        // add man
-       // man = game.add.sprite(2848, 560, 'man');
+        // add squish
+        squish = game.add.audio('squish', 2, false);
 
     }
-
-
 
     function update() {
 
         if(first_play) {
             startGame();
         } else if(arrived){
-            arrivalAnimation();
-        } else {
+            arrivalInteraction();
+        } else if(alive){
             checkForInput();
         }
 
+        if(OnTheWayBack) {
+            game.physics.arcade.overlap(player, people, roadKillHandler);
+            game.physics.arcade.overlap(player, victim, victimHandler);
+            if(score < 0) {
+                player.kill();
+                alive = false;
+                var restartText = "You're Supposed to Be Saving People!\nReload the Page to Restart...";
+                var style = {font: "42px Arial", fill: "#ff0000", align: "center"};
+                restartText = game.add.text(60, 250, restartText, style);
+                restartText.fixedToCamera = true;
+            }
+        }
+
         //console.log(player.x);
+    }
+
+    function roadKillHandler(player, person) {
+        score -= 100;
+        updateScoreText(score);
+        person.kill();
+        squish.play();
+    }
+
+    function victimHandler(s1, s2) {
+        var style = {font : '12px Arial', fill : '#ffffff', align : 'left'};
+        victimText = game.add.text(150, 470, "Thank you for saving me! Now I can live!", style);
+        alive = false;
+
+        style = {font : '20px Arial', fill : '#ffffff', align : 'left'};
+        victimText = game.add.text(60, 250, "You've Won! \nReload If You Want to Try Again!", style);
+        victimText.fixedToCamera = true;
+
     }
 
     function addControls() {
@@ -139,8 +188,9 @@ window.onload = function () {
             lastPlayed = game.time.now;
         }
 
-        if(player.x >= 2858) {
+        if(player.x >= 2858 && OnTheWayBack === false) {
             arrived = true;
+
         }
     }
 
@@ -152,16 +202,39 @@ window.onload = function () {
             player.animations.play('lights_on',5, true);
             first_play = false;
             lastPlayed = game.time.now;
+            game.world.remove(victimText);
         }
     }
 
-    function arrivalAnimation() {
+    function arrivalInteraction() {
+
+        // create the man to walk into the hospital
         if(manNotCreated) {
+            score = 1000;
             man = game.add.sprite(2848, player.y, 'man');
             man.animations.add('walk');
             man.animations.play('walk', 8, true);
             manNotCreated = false;
             game.camera.follow(man, Phaser.Camera.FOLLOW_PLATFORMER);
+            var style = {font : '20px Arial', fill : '#ffffff', align : 'left'};
+            second_instructions = game.add.text(2150, 27, second_instructions, style);
+        }
+
+        // if you have the organ, initiate return trip
+        if(notHaveTheOrgan && man.x >= 2848 && man.y === 520){
+
+            updateScoreText(score);
+            game.world.remove(second_instructions);
+            var style = {font : '20px Arial', fill : '#ffffff', align : 'left'};
+            game.add.text(2150, 27, organText, style);
+            notHaveTheOrgan = false;
+            man.kill();
+            arrived = false;
+            player.scale.x = -1;
+            player.anchor.setTo(.5,.5);
+            OnTheWayBack = true;
+            game.camera.follow(player, Phaser.Camera.FOLLOW_PLATFORMER);
+            generateRoadkill();
         }
 
         // Player Movement
@@ -175,6 +248,31 @@ window.onload = function () {
             man.x -= 1;
         }  else if(keys.right.isDown) {
             man.x += 1;
+        }
+    }
+
+    function updateScoreText(score) {
+        game.world.remove(scoreText);
+        scoreString = "Score: " + score;
+        var style = {font : '20px Arial', fill : '#ffffff', align : 'left'};
+        scoreText = game.add.text(0,0, scoreString, style);
+        scoreText.fixedToCamera = true;
+    }
+
+    function generateRoadkill() {
+        people = game.add.group();
+        people.enableBody = true;
+        people.physicsBodyType = Phaser.Physics.ARCADE;
+
+        people.createMultiple(30, 'man');
+        people.setAll('outOfBoundsKill', true);
+        people.setAll('checkWorldBounds', true);
+
+        for(var i = 0; i < 30; i++) {
+            var person = people.getFirstExists(false);
+            var xInt = game.rnd.integerInRange(0, 2400);
+            var yInt = game.rnd.integerInRange(504, 600);
+            person.reset(xInt, yInt);
         }
     }
 
