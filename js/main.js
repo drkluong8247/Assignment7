@@ -60,7 +60,7 @@ window.onload = function () {
     // text
     var initial_instructions = 'Press Space and Get to the Hospital!\nW = UP     S = DOWN\nA = LEFT  D = RIGHT';
     initial_instructions += '\nSPACE = SIREN';
-    var second_instructions = 'Grab the Organ at the Lighted Doorway!';
+    var second_instructions = 'Grab the Organ at the Lighted Doorway to the right!';
     var organText = "You have the Organ! Get It to the Patient Before He Expires!";
     var scoreText;
     var scoreString = "Score: " + score;
