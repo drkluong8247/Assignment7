@@ -39,6 +39,10 @@ window.onload = function () {
     var victim;
     var people;
     var score = 0;
+    var t1Displayed = false;
+    var t1Removed = false;
+    var t2Displayed = false;
+    var t2Removed = false;
 
     // map vars
     var map;
@@ -65,6 +69,10 @@ window.onload = function () {
     var scoreText;
     var scoreString = "Score: " + score;
     var victimText;
+    var thought1;
+    var thought1Text = "Wow, I'm making great time. I'm sure nothing bad will\nhappen to me, especially on the way back.";
+    var thought2;
+    var thought2Text = "Oh No! What are all of these people doing here? I should\n really try to NOT HIT THEM";
 
     function create() {
         // add physics
@@ -117,12 +125,35 @@ window.onload = function () {
             arrivalInteraction();
         } else if(alive){
             checkForInput();
+            if(!t1Displayed && player.x >= 1200 && player.x < 2000) {
+                var style = {font: '12px Arial', fill: '#ffffff', align: 'left'};
+                thought1 = game.add.text(150, 470, thought1Text, style);
+                thought1.fixedToCamera = true;
+                t1Displayed = true;
+            }
+
+            if(!t1Removed && t1Displayed && player.x >= 2000) {
+                game.world.remove(thought1);
+                t1Removed = true;
+
+            }
         }
 
         if(OnTheWayBack) {
+            if(!t2Displayed && player.x >= 2200) {
+                var style = {font: '12px Arial', fill: '#ffffff', align: 'left'};
+                thought2 = game.add.text(150, 470, thought2Text, style);
+                thought2.fixedToCamera = true;
+                t2Displayed = true;
+            }
+
+            if(!t2Removed && t2Displayed && player.x < 2200) {
+                game.world.remove(thought2);
+                t2Removed = true;
+            }
             game.physics.arcade.overlap(player, people, roadKillHandler);
             game.physics.arcade.overlap(player, victim, victimHandler);
-            if(score < 0) {
+            if(score === 0) {
                 player.kill();
                 alive = false;
                 var restartText = "You're Supposed to Be Saving People!\nReload the Page to Restart...";
@@ -147,7 +178,7 @@ window.onload = function () {
         victimText = game.add.text(150, 470, "Thank you for saving me! Now I can live!", style);
         alive = false;
 
-        style = {font : '20px Arial', fill : '#ffffff', align : 'left'};
+        style = {font : '42px Arial', fill : '#ffffff', align : 'left'};
         victimText = game.add.text(60, 250, "You've Won! \nReload If You Want to Try Again!", style);
         victimText.fixedToCamera = true;
 
@@ -188,7 +219,7 @@ window.onload = function () {
             lastPlayed = game.time.now;
         }
 
-        if(player.x >= 2858 && OnTheWayBack === false) {
+        if(player.x >= 2650 && OnTheWayBack === false) {
             arrived = true;
 
         }
@@ -211,7 +242,7 @@ window.onload = function () {
         // create the man to walk into the hospital
         if(manNotCreated) {
             score = 1000;
-            man = game.add.sprite(2848, player.y, 'man');
+            man = game.add.sprite(2650, player.y, 'man');
             man.animations.add('walk');
             man.animations.play('walk', 8, true);
             manNotCreated = false;
@@ -221,7 +252,7 @@ window.onload = function () {
         }
 
         // if you have the organ, initiate return trip
-        if(notHaveTheOrgan && man.x >= 2848 && man.y === 520){
+        if(notHaveTheOrgan && man.x >= 2650 && man.y <= 520){
 
             updateScoreText(score);
             game.world.remove(second_instructions);
