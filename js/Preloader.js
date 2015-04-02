@@ -30,6 +30,10 @@ function preload() {
     // images
     this.game.load.image('mansion', 'assets/images/mansion.jpg');
     this.game.load.image('enter', 'assets/images/enter.gif');
+    this.game.load.image('castle', 'assets/images/castle.PNG');
+    this.game.load.tilemap('map', 'assets/images/map.json', null, Phaser.Tilemap.TILED_JSON);
+    this.game.load.spritesheet('cat', 'assets/images/cat.png', 50, 50);
+    this.game.load.spritesheet('monster', 'assets/images/monster.png', 50, 50);
 }
 
 function create() {
