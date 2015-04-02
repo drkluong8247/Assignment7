@@ -2,86 +2,97 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Digital Assignment 4: Organ Dash: The Transplant Transport</title>
+    <title>Digital Assignment 7</title>
     <script src="js/phaser.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/boot.js"></script>
+    <script src="js/preloader.js"></script>
+    <script src="js/menu.js"></script>
 
-<style>
-body
-{
-    color: #777;
-    font-family: "Avenir", Verdana, sans-serif;
-}
-#readme
-{
-    margin-top: 10px;
-}
-</style>
+    <script type="text/javascript">
+        window.onload = function () {
+            // set up Phaser canvas at 800x600
+            var game = new Phaser.Game(800, 600, Phaser.AUTO, "game");
+
+            // add all game states
+            game.state.add("Boot",      BasicGame.Boot);
+            game.state.add("Preloader", BasicGame.Preloader);
+            game.state.add("Menu",      BasicGame.Menu);
+
+            game.state.start("Boot");
+        };
+    </script>
+
+    <style>
+        body {
+            color: #777;
+            font-family: "Avenir", Verdana, sans-serif;
+        }
+
+        #readme {
+            margin-top: 10px;
+        }
+    </style>
 
 </head>
 <body>
 <div id="game"></div>
 <div id="readme">
-<h2>Organ Dash: The Transplant Transport</h2>
-<ul>
+    <h2>Dramatic/Existential Star Catcher</h2>
+    <ul>
 
-<li><strong>High Concept:</strong>
-A car game about an ambulance rushing to save a man's life.
-</li>
+        <li><strong>High Concept:</strong>
+            A Game of self-discovery and Catching Things
+        </li>
 
-<li><strong>Player Experiece Goals:</strong>
-Players should (ideally) experience intense inner conflict, having to possibly run over others to save the life of one.
-</li>
+        <li><strong>Player Experiece Goals:</strong>
+            Wonder and Confusion
+        </li>
 
-<li><strong>Genre:</strong>
-Racer, Simulator
-</li>
+        <li><strong>Genre:</strong>
+            Adventure
+        </li>
 
-<li><strong>Game play:</strong>
-The player must rush to retrieve an organ from the hospital and then rush back, carefully avoiding other people standing on the road.
-</li>
+        <li><strong>Game play:</strong>
+            [No Text]
+        </li>
 
-<li><strong>Prototype goal:</strong>
-This game is prototyping tilemaps, distinctly multi-section gameplay (without the use of game states), and a different method of
-    using booleans in the update function to select functionality.
-</li>
+        <li><strong>Prototype goal:</strong>
+            [No Text]
+        </li>
 
-<li><strong>Features:</strong>
-The features of my game are fairly generic. A lot of it is only advantageous to me, as I haven't used much of this style of coding
-    in the past, allowing me to explore new options. However, you CAN toggle the siren on and off.
-</li>
+        <li><strong>Features:</strong>
+            [No Text]
+        </li>
 
-<li><strong>Setting/Premise:</strong>
-The game takes place on a street of a non-descript city, involving one EMT-turned-heart surgeon, one man with congestive heart failure,
-    and about 30 innocent bystanders who happened to be at the wrong place at the wrong time.
-</li>
+        <li><strong>Setting/Premise:</strong>
+            [No Text]
+        </li>
 
-<li><strong>Story:</strong>
-    As a professional EMT, it's your job to save people. While on the way to the hospital, you encounter a man claiming his heart it failing, and he requests that you bring him
-    a new one so you can perform the operation. After retrieving the heart, the aforementioned bystanders had the misfortune of deciding to stand in the middle of the road. You must try to NOT hit any bystanders while simultaneously delivering the heart.
-</li>
+        <li><strong>Story:</strong>
+            [No Text]
+        </li>
 
-<li><strong>Target Audience:</strong>
-Any age. Violence is minimal and there is no foul language. Younger kids may find being a public servant (police, firefighters, etc) appealing.
-</li>
+        <li><strong>Target Audience:</strong>
+            [No Text]
+        </li>
 
-<li><strong>Play time:</strong>
-Approximately 1 - 3 minutes.
-</li>
+        <li><strong>Play time:</strong>
+            [No Text]
+        </li>
 
-<li><strong>Strategies:</strong>
-I tried hard to ensure that the ambulance can only run over bystanders that it legitimately touches. Pay careful attention to this, stopping if necessary.
-</li>
+        <li><strong>Strategies:</strong>
+            [No Text]
+        </li>
 
-<li><strong>Prototype Assets:</strong>
-My assets are various pictures, a song, and free artwork from Open Game Art. I also drew my own stick men to represent people and manually animated both the ambulance and people.
-</li>
+        <li><strong>Prototype Assets:</strong>
+            [No Text]
+        </li>
 
-<li><strong>Prototype Closest Other Game:</strong>
-Older games like Road Fighter come to mind, but mixed with a less violent message. It is also reminiscent of 2D sidescrollers.
-</li>
+        <li><strong>Prototype Closest Other Game:</strong>
+            [No Text]
+        </li>
 
-</ul>
+    </ul>
 </div>
 </body>
 </html>
